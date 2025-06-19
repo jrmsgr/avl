@@ -8,7 +8,7 @@ from __future__ import annotations
 import random
 import weakref
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional, List
 
 from z3 import BitVecNumRef, BoolRef, IntNumRef, Optimize, RatNumRef, sat
 
@@ -18,9 +18,9 @@ class Var:
     _lookup_ = weakref.WeakValueDictionary()
 
     @staticmethod
-    def _register_(cls : Var) -> None:
-        Var._lookup_[Var._count_] = cls
-        cls._idx_ = Var._count_
+    def _register_(inst : Var) -> None:
+        Var._lookup_[Var._count_] = inst
+        inst._idx_ = Var._count_
         Var._count_ += 1
 
     def __copy__(self) -> Var:
@@ -49,7 +49,7 @@ class Var:
         memo[id(self)] = new_obj
         return new_obj
 
-    def __init__(self, name: str, value: Any, auto_random: bool = True, fmt: Callable[..., int] = str) -> None:
+    def __init__(self, name: str, value: Any, auto_random: bool = True, fmt: Callable[..., str] = str) -> None:
         """
         Initialize an instance of the class.
 
@@ -61,6 +61,7 @@ class Var:
         :type auto_random: bool, optional
         """
         # Lookup
+        self._idx_ = -1
         Var._register_(self)
 
         self.name = name
@@ -116,7 +117,7 @@ class Var:
         """
         raise NotImplementedError("Var does not implement _z3_ method. Please override in subclass.")
 
-    def _random_value_(self, bounds: tuple[int, int] = None) -> Any:
+    def _random_value_(self, bounds: Optional[tuple[int, int]] = None) -> Any:
         """
         Get a random value for the variable within the specified bounds.
 
@@ -261,7 +262,7 @@ class Var:
         return self._range_()[1]
 
     def add_constraint(
-        self, name: str, constraint: BoolRef, hard: bool = True, target: dict = None
+        self, name: str, constraint: BoolRef, hard: bool = True, target: Optional[dict[str, BoolRef]] = None
     ):
         """
         Add a constraint to the object.
@@ -324,7 +325,7 @@ class Var:
         for c in self._constraints_[False].values():
             solver.add_soft(c(self._rand_), weight=100)
 
-    def randomize(self, hard: bool = None, soft: bool = None) -> None:
+    def randomize(self, hard: List[BoolRef] = [], soft: List[BoolRef] = []) -> None:
         """
         This method randomizes the value of the variable by considering hard and soft constraints.
         It uses an optimization solver to find a suitable value that satisfies the constraints.
@@ -369,16 +370,11 @@ class Var:
         # Constraints
         constraints = self._constraints_.copy()
 
-        if hard is not None:
-            idx = 0
-            for c in hard:
-                self.add_constraint(f"_c_hard_{idx}", c, hard=True, target=constraints[True])
-                idx += 1
-        if soft is not None:
-            idx = 0
-            for c in soft:
-                self.add_constraint(f"_c_soft_{idx}", c, hard=False, target=constraints[False])
-                idx += 1
+        for idx,c in enumerate(hard):
+            self.add_constraint(f"_c_hard_{idx}", c, hard=True, target=constraints[True])
+
+        for idx, c in enumerate(soft):
+            self.add_constraint(f"_c_soft_{idx}", c, hard=False, target=constraints[False])
 
         # Calculate the range of the random variable
         max_solver = new_solver()
