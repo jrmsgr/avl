@@ -4,12 +4,13 @@
 # Apheleia Verification Library Phase Manager
 
 from .phase import Phase
+from typing import Optional, Dict
 
 
 class PhaseManager:
-    _first = None
-    _current = None
-    _phases = {}
+    _first: Phase|None = None
+    _current: Phase|None = None
+    _phases: Dict[str, Phase] = {}
 
     @staticmethod
     def get_phase(name: str) -> Phase:
@@ -27,7 +28,7 @@ class PhaseManager:
         return PhaseManager._phases[uname]
 
     @staticmethod
-    def add_phase(name, after: Phase = None, top_down: bool = True) -> Phase:
+    def add_phase(name, after: Optional[Phase] = None, top_down: bool = True) -> Phase:
         """
         Adds a phase to the manager.
 
@@ -84,24 +85,26 @@ class PhaseManager:
         PhaseManager._phases.pop(uname)
 
     @staticmethod
-    def next() -> Phase:
+    def next() -> Phase|None:
         """
         Moves to the next phase.
 
         :returns: The next phase.
         :rtype: Phase
         """
+        assert PhaseManager._current is not None, "Attempt to retrieve current phase before any phase was added"
         PhaseManager._current = PhaseManager._current.next
         return PhaseManager._current
 
     @staticmethod
-    def prev() -> Phase:
+    def prev() -> Phase|None:
         """
         Moves to the previous phase.
 
         :returns: The previous phase.
         :rtype: Phase
         """
+        assert PhaseManager._current is not None, "Attempt to retrieve current phase before any phase was added"
         PhaseManager._current = PhaseManager._current.prev
         return PhaseManager._current
 

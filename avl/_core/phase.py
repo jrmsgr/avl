@@ -20,8 +20,8 @@ class Phase:
         """
         self.name = name
         self.top_down = top_down
-        self.prev = None
-        self.next = None
+        self.prev: Phase|None = None
+        self.next: Phase|None = None
         self.objections = {}
         self._objection_ev = Event()
 
