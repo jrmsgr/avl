@@ -6,10 +6,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
-from z3 import BitVec
-
+from z3 import BitVec, BitVecRef
 from .var import Var
 
 
@@ -22,7 +21,7 @@ class Logic(Var):
         :return: Copied Var.
         :rtype: Var
         """
-        new_obj = super().__copy__()
+        new_obj = cast(Logic, super().__copy__())
         new_obj.width = self.width
         new_obj._fmt_ = self._fmt_
         return  new_obj
@@ -32,7 +31,7 @@ class Logic(Var):
         name: str,
         value: int,
         auto_random: bool = True,
-        fmt: Callable[..., int] = hex,
+        fmt: Callable[..., str] = hex,
         width: int = 32
     ) -> None:
         """
@@ -88,7 +87,7 @@ class Logic(Var):
         """
         return (0, (1 << self.width) - 1)
 
-    def _z3_(self) -> BitVec:
+    def _z3_(self) -> BitVecRef: # pyright: ignore [reportIncompatibleMethodOverride]
         """
         Get the Z3 representation of the variable.
 
