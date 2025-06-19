@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 import cocotb
-from cocotb.triggers import ReadWrite
+from cocotb.triggers import ReadWrite, Event
 
 from .object import Object
 from .phase import Phase
@@ -50,7 +50,7 @@ class Component(Object):
         # Phase management
         # Sync to ensure all children complete their hierarchical function calls
         # before the parent does.
-        self._hierarchical_sync_ = cocotb.triggers.Event()
+        self._hierarchical_sync_ = Event()
 
     async def _hierarchical_func_(self, fn_name: str, *args: Any, **kwargs: Any) -> Any:
         """
@@ -62,6 +62,7 @@ class Component(Object):
         :param kwargs: Arbitrary keyword arguments.
         """
         phase = PhaseManager._current
+        assert phase is not None, "Attempt to retrieve current phase before any phase was added"
         if phase.top_down:
             fn = getattr(self, fn_name, None)
             if fn is not None:
@@ -89,7 +90,7 @@ class Component(Object):
         if child not in self._children_:
             self._children_.append(child)
 
-    def get_child(self, name: str) -> Component:
+    def get_child(self, name: str) -> Component|None:
         """
         Get a child component by name.
 
@@ -132,7 +133,7 @@ class Component(Object):
             await PhaseManager._current.wait_for_objections()
             PhaseManager.next()
 
-    def raise_objection(self, phase: Phase = None, obj: Object = None) -> None:
+    def raise_objection(self, phase: Optional[Phase] = None, obj: Optional[Object] = None) -> None:
         """
         Raise an objection for the current phase.
 
@@ -143,13 +144,14 @@ class Component(Object):
         """
         if phase is None:
             phase = PhaseManager._current
+            assert phase is not None, "Attempt to retrieve current phase before any phase was added"
 
         if obj is None:
             obj = self
 
         phase.raise_objection(obj)
 
-    def drop_objection(self, phase: Phase = None, obj: Object = None) -> None:
+    def drop_objection(self, phase: Optional[Phase] = None, obj: Optional[Object] = None) -> None:
         """
         Drop an objection for the current phase.
 
@@ -160,6 +162,7 @@ class Component(Object):
         """
         if phase is None:
             phase = PhaseManager._current
+            raise ValueError("Attempt to retrieve current phase before any phase was added")
 
         if obj is None:
             obj = self
