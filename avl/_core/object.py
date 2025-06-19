@@ -8,7 +8,7 @@ from __future__ import annotations
 import copy
 import random
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional, TypeVar
 
 import tabulate
 from z3 import BitVecNumRef, BoolRef, IntNumRef, Optimize, RatNumRef, sat
@@ -109,6 +109,8 @@ def _patch_constraints_(obj : Object, new_obj : Object, conversion: dict[Any, in
             new_v = [conversion[id(o)] for o in v[1]]
             new_obj._constraints_[truth_value][k] = (v[0], new_v)
 
+Obj = TypeVar("Obj", bound="Object")
+
 class Object:
 
     def __copy__(self) -> Object:
@@ -147,7 +149,7 @@ class Object:
 
         return new_obj
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> Object:
+    def __new__(cls, *args: Any, **kwargs: Any) -> Obj: # pyright: ignore [reportInvalidTypeVarUse]
         """
         Create a new instance of Object or its subclass.
 
@@ -181,7 +183,7 @@ class Object:
 
         return obj
 
-    def __init__(self, name: str, parent: Component) -> None:
+    def __init__(self, name: str, parent: Optional[Component]) -> None:
         """
         Initialize Object.
 

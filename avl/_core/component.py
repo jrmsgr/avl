@@ -29,7 +29,7 @@ class Component(Object):
         """
         return self
 
-    def __init__(self, name: str, parent: Component) -> None:
+    def __init__(self, name: str, parent: Optional[Component]) -> None:
         """
         Initialize Component.
 
