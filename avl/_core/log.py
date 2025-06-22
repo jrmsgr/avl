@@ -215,22 +215,6 @@ class Log:
         logger.info(msg, stacklevel=2)
 
     @staticmethod
-    def warn(msg: str, group: str = "cocotb") -> None:
-        """
-        Logs a warning message.
-
-        :param msg: Message to be logged.
-        :type msg: str
-        :param group: Group to which the message belongs.
-        :type group: str
-        """
-        logger = logging.getLogger(group)
-        if logger not in Log._loggers:
-            logger = Log._new_logger(group)
-
-        logger.warning(msg, stacklevel=2)
-
-    @staticmethod
     def warning(msg: str, group: str = "cocotb") -> None:
         """
         Logs a warning message.

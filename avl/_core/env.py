@@ -60,7 +60,7 @@ class Env(Component):
         :type active_high: bool
         """
         rst.value = int(active_high)
-        await Timer(duration, units)
+        await Timer(duration, units) # pyright: ignore [reportArgumentType]
         rst.value = int(not active_high)
 
     async def clock(self, clk: HierarchyObject, freq_mHz: int) -> None:
@@ -90,8 +90,8 @@ class Env(Component):
         :type units: str
         """
         while True:
-            await Timer(duration, units)
-            self.log(msg)
+            await Timer(duration, units) # pyright: ignore [reportArgumentType]
+            self.info(msg)
 
     async def timeout(self, duration: int, units: str = "ns") -> None:
         """
@@ -102,7 +102,7 @@ class Env(Component):
         :param units: Time units for the duration, defaults to 'ns'
         :type units: str
         """
-        await Timer(duration, units)
+        await Timer(duration, units) # pyright: ignore [reportArgumentType]
         self.fatal("Timeout")
 
 __all__ = ["Env"]

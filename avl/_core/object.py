@@ -207,10 +207,6 @@ class Object:
         self._max_values_ = {}
         self._min_values_ = {}
 
-        # Logger - Make all logger functions available in class to simplify code
-        for i in ["debug", "info", "warn", "warning", "error", "critical", "fatal"]:
-            setattr(self, i, getattr(Log, i))
-
         # Table format for string representation
         self._table_fmt_ = "outline"
 
@@ -250,6 +246,32 @@ class Object:
                 values.append([k, _fmt_(v)])
 
         return str(tabulate.tabulate(values, headers=headers, tablefmt=self._table_fmt_))
+
+    # Logger - Make all logger functions available in class to simplify code
+    @staticmethod
+    def debug(msg: str, group: str = "cocotb") -> None:
+        Log.debug(msg, group)
+
+    @staticmethod
+    def info(msg: str, group: str = "cocotb") -> None:
+        Log.info(msg, group)
+
+    @staticmethod
+    def warning(msg: str, group: str = "cocotb") -> None:
+        Log.warning(msg, group)
+
+    @staticmethod
+    def error(msg: str, group: str = "cocotb") -> None:
+        Log.error(msg, group)
+
+    @staticmethod
+    def critical(msg: str, group: str = "cocotb") -> None:
+        Log.critical(msg, group)
+
+    @staticmethod
+    def fatal(msg: str, group: str = "cocotb") -> None:
+        Log.fatal(msg, group)
+
 
     def set_name(self, name: str) -> str:
         """
