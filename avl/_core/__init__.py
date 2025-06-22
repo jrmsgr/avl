@@ -49,7 +49,7 @@ __all__ = [
     "Fifo",
     "Port",
     "Phase",
-    "Phase_Manager",
+    "PhaseManager",
     "Object",
     "Transaction",
     "Component",
