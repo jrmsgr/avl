@@ -71,7 +71,7 @@ class Covergroup(Component):
             raise ValueError(f"Coverpoint {name} already exists")
         return self._cps_[name]
 
-    def add_covercross(self, name: str, *args: list[Coverpoint]) -> Covercross:
+    def add_covercross(self, name: str, *args: Coverpoint) -> Covercross:
         """
         Add a covercross to the covergroup.
 
