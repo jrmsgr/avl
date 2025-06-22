@@ -112,39 +112,39 @@ class Coverbin(Component):
                 delta2 = float(var) - self.mean
                 self._m2_ += delta * delta2
 
-    def get_mean(self) -> float:
+    def get_mean(self) -> float|None:
         """
         Return the mean value.
 
         :return: The mean value.
         :rtype: float
         """
-        if self.stats:
-            return self.mean if self._count_ > 0 else None
+        if self.stats and self._count_ > 0:
+            return self.mean
         else:
             return None
 
-    def get_variance(self) -> float:
+    def get_variance(self) -> float|None:
         """
         Return the variance value.
 
         :return: The variance value.
         :rtype: float
         """
-        if self.stats:
-            return self._m2_ / (self._count_ - 1) if self._count_ > 1 else None
+        if self.stats and self._count_ > 1:
+            return self._m2_ / (self._count_ - 1)
         else:
             return None
 
-    def get_stddev(self) -> float:
+    def get_stddev(self) -> float|None:
         """
         Return the standard deviation value.
 
         :return: The standard deviation value.
         :rtype: float
         """
-        if self.stats:
-            return sqrt(self.get_variance()) if self._count_ > 1 else None
+        if self.stats and self._count_ > 1:
+            return sqrt(self.get_variance()) # pyright: ignore [reportArgumentType]
         else:
             return None
 
