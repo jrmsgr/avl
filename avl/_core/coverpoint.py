@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Dict
 
 import pandas as pd
 
@@ -34,7 +34,7 @@ class Coverpoint(Component):
         self.comment = None
         self.weight = parent.weight if parent is not None else 1
         self.at_least = 1
-        self._bins_ = {}
+        self._bins_ : Dict[str, Coverbin] = {}
 
     def set_comment(self, comment: str) -> None:
         """
@@ -96,7 +96,7 @@ class Coverpoint(Component):
         else:
             raise ValueError(f"Bin {name} does not exist")
 
-    def get_hit(self) -> Coverbin:
+    def get_hit(self) -> Coverbin|None:
         """
         Check if the variable matches any bin condition.
 
@@ -186,13 +186,10 @@ class Coverpoint(Component):
         :rtype: pandas.DataFrame
         """
 
-        if full:
-            retval = None
+        if full and self._bins_: # Empty dict evaluates to False
+            retval = pd.DataFrame()
             for b in self._bins_.values():
-                if retval is None:
-                    retval = b.report()
-                else:
-                    retval = pd.concat([retval, b.report()], ignore_index=True)
+                retval = pd.concat([retval, b.report()], ignore_index=True)
 
             retval.insert(0, "name", self.name)
             retval.insert(2, "at_least", self.at_least)
