@@ -5,7 +5,7 @@
 # Apheleia Verification Library Coverpoint
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional, Dict
 
 import pandas as pd
 
@@ -16,7 +16,7 @@ from .coverpoint import Coverpoint
 
 
 class Covergroup(Component):
-    def __init__(self, name: str, parent: Component = None) -> None:
+    def __init__(self, name: str, parent: Optional[Component] = None) -> None:
         """
         Covergroup class for managing coverpoints and covercrosses.
 
@@ -29,7 +29,7 @@ class Covergroup(Component):
 
         self.comment = None
         self.weight = 1
-        self._cps_ = {}
+        self._cps_: Dict[str, Coverpoint] = {}
 
         # Register
         Coverage().add_covergroup(self)
@@ -65,7 +65,8 @@ class Covergroup(Component):
         :rtype: Coverpoint
         """
         if name not in self._cps_:
-            self._cps_[name] = Coverpoint(name, self, var)
+            cp = Coverpoint(name, self, var)
+            self._cps_[name] = cp
         else:
             raise ValueError(f"Coverpoint {name} already exists")
         return self._cps_[name]
@@ -83,11 +84,12 @@ class Covergroup(Component):
         :rtype: Covercross
         """
         if name not in self._cps_:
-            self._cps_[name] = Covercross(name, self)
-            self._cps_[name].add_points(*args)
+            cvx = Covercross(name, self)
+            cvx.add_points(*args)
+            self._cps_[name] = cvx
+            return cvx
         else:
             raise ValueError(f"Covercross {name} already exists")
-        return self._cps_[name]
 
     def sample(self) -> None:
         """
@@ -141,12 +143,9 @@ class Covergroup(Component):
         :param full: If True, generate a detailed report
         :return: A pandas DataFrame with the report
         """
-        retval = None
+        retval = pd.DataFrame()
         for cp in self._cps_.values():
-            if retval is None:
-                retval = cp.report(full=full)
-            else:
-                retval = pd.concat([retval, cp.report(full=full)], ignore_index=True)
+            retval = pd.concat([retval, cp.report(full=full)], ignore_index=True)
 
         retval.insert(0, "covergroup", self.name)
         retval = retval.fillna("")
