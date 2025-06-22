@@ -5,9 +5,9 @@
 
 import random
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional
 
-from z3 import Int, Or
+from z3 import Int, Or, ArithRef
 
 from .var import Var
 
@@ -86,12 +86,12 @@ class Enum(Var):
         """
         return (min(self.values.values()), max(self.values.values()))
 
-    def _z3_(self) -> Int:
+    def _z3_(self) -> ArithRef:
         """
         Return the Z3 representation of the variable.
 
         :return: The Z3 representation of the variable.
-        :rtype: BoolRef | IntNumRef | BitVecNumRef | RatNumRef
+        :rtype: ArithRef
         """
         self.add_constraint(
             "_c_range_",
@@ -114,8 +114,9 @@ class Enum(Var):
         for k, v in self.values.items():
             if v == self.value:
                 return self._fmt_(k)
+        return ""
 
-    def _random_value_(self, bounds: tuple[Any, Any] = None) -> Any:
+    def _random_value_(self, bounds: Optional[tuple[Any, Any]] = None) -> Any:
         """
         Randomize the value of the variable.
         """
