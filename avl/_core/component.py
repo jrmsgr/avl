@@ -162,7 +162,7 @@ class Component(Object):
         """
         if phase is None:
             phase = PhaseManager._current
-            raise ValueError("Attempt to retrieve current phase before any phase was added")
+            assert phase is not None, "Attempt to retrieve current phase before any phase was added"
 
         if obj is None:
             obj = self

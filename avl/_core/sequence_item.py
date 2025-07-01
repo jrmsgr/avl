@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .sequence import Sequence
 
 class SequenceItem(Transaction):
-    def __init__(self, name: str, parent: Optional[Sequence|Sequencer] = None) -> None:
+    def __init__(self, name: str, parent: Optional[SequenceItem|Sequencer] = None) -> None:
         """
         Initializes the SequenceItem with a name and an optional parent Sequence or Sequencer.
 
@@ -30,7 +30,7 @@ class SequenceItem(Transaction):
         self._parent_sequence_ = None
         self._parent_sequencer_ = None
 
-        if isinstance(parent, Sequence):
+        if isinstance(parent, SequenceItem):
             self._parent_sequence_ = parent
             self._parent_sequencer_ = parent.get_sequencer()
         elif isinstance(parent, Sequencer):
