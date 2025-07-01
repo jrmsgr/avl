@@ -5,7 +5,7 @@
 # Apheleia Verification Library Coverpoint
 
 from math import sqrt
-from typing import Any
+from typing import Any, List
 
 import pandas as pd
 
@@ -14,7 +14,7 @@ from .var import Var
 
 
 class Coverbin(Component):
-    def __init__(self, name: str, parent: Component, *args: Any, **kwargs: Any]) -> None:
+    def __init__(self, name: str, parent: Component, *args: Any, **kwargs: List[Any]) -> None:
         """
         Initialize an instance of the Coverbin class.
 

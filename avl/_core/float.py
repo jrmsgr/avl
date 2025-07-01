@@ -7,16 +7,16 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
-from z3 import And, Real
+from z3 import And, Real, ArithRef
 
 from .var import Var
 
 
 class Fp16(Var):
-    def __init__(self, name: str, value: float, auto_random: bool = True, fmt: Callable[..., float] = str) -> None:
+    def __init__(self, name: str, value: float, auto_random: bool = True, fmt: Callable[..., str] = str) -> None:
         """
         Initialize an instance of the class.
 
@@ -47,16 +47,16 @@ class Fp16(Var):
             warnings.filterwarnings("ignore", category=RuntimeWarning, message="overflow encountered in cast")
             return super()._cast_(other)
 
-    def _range_(self) -> tuple[int, int]:
+    def _range_(self) -> tuple[float, float]:
         """
         Get the range of values that can be represented by this variable.
 
         :return: A tuple containing the minimum and maximum values.
-        :rtype: tuple[int, int]
+        :rtype: tuple[float, float]
         """
-        return (-np.finfo(self.value).max, np.finfo(self.value).max)
+        return (float(-np.finfo(self.value).max), float(np.finfo(self.value).max))
 
-    def _z3_(self) -> Real:
+    def _z3_(self) -> ArithRef:
         """
         Get the Z3 representation of the variable.
 
@@ -70,7 +70,7 @@ class Fp16(Var):
         )
         return Real(f"{self._idx_}")
 
-    def _random_value_(self, bounds: tuple[float, float] = None) -> float:
+    def _random_value_(self, bounds: Optional[tuple[float, float]] = None) -> float:
         """
         Randomize the value of the variable.
 
@@ -145,7 +145,7 @@ class Fp16(Var):
         return not (np.isnan(self.value) or np.isnan(other_val)) and self.value >= other_val
 
 class Fp32(Fp16):
-    def __init__(self, name: str, value: float, auto_random: bool = True, fmt: Callable[..., float] = str) -> None:
+    def __init__(self, name: str, value: float, auto_random: bool = True, fmt: Callable[..., str] = str) -> None:
         """
         Initialize an instance of the class.
 
@@ -164,7 +164,7 @@ class Fp32(Fp16):
         super().__init__(name, value, auto_random=auto_random)
 
 class Fp64(Fp16):
-    def __init__(self, name: str, value: float, auto_random: bool = True, fmt: Callable[..., float] = str) -> None:
+    def __init__(self, name: str, value: float, auto_random: bool = True, fmt: Callable[..., str] = str) -> None:
         """
         Initialize an instance of the class.
 
@@ -182,12 +182,12 @@ class Fp64(Fp16):
             self._bits_ = np.uint64(0)
         super().__init__(name, value, auto_random=auto_random)
 
-    def _range_(self) -> tuple[int, int]:
+    def _range_(self) -> tuple[float, float]:
         """
         Get the range of values that can be represented by this variable.
 
         :return: A tuple containing the minimum and maximum values.
-        :rtype: tuple[int, int]
+        :rtype: tuple[float, float]
         """
         return (-1e100, 1e100) # Reduced to allow randomization
 
