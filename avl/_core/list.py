@@ -3,7 +3,7 @@
 # Description:
 # Apheleia Verification Library List
 
-from typing import Any
+from typing import Any, Iterable
 
 from cocotb.triggers import Event
 
@@ -37,7 +37,7 @@ class List(list):
         super().clear()
         self._push_event.set()
 
-    def extend(self, iterable: list[Any]) -> None:
+    def extend(self, iterable: Iterable) -> None:
         """
         Extends the list with elements from an iterable and sets the event.
 
@@ -47,7 +47,7 @@ class List(list):
         super().extend(iterable)
         self._push_event.set()
 
-    def insert(self, index: int, data: Any) -> None:
+    def insert(self, index: int, data: Any) -> None: # pyright: ignore [reportIncompatibleMethodOverride]
         """
         Inserts an element at a given position in the list and sets the event.
 
@@ -59,7 +59,7 @@ class List(list):
         super().insert(index, data)
         self._push_event.set()
 
-    def pop(self, index: int = -1) -> Any:
+    def pop(self, index: int = -1) -> Any: # pyright: ignore [reportIncompatibleMethodOverride]
         """
         Pops an element from the list at a given position.
 
