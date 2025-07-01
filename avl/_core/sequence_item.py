@@ -5,9 +5,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from .component import Component
 from .sequencer import Sequencer
 from .transaction import Transaction
 
@@ -15,13 +14,13 @@ if TYPE_CHECKING:
     from .sequence import Sequence
 
 class SequenceItem(Transaction):
-    def __init__(self, name: str, parent: Component) -> None:
+    def __init__(self, name: str, parent: Optional[Sequence|Sequencer] = None) -> None:
         """
-        Initializes the SequenceItem with a name and an optional parent component.
+        Initializes the SequenceItem with a name and an optional parent Sequence or Sequencer.
 
         :param name: Name of the sequence item.
         :type name: str
-        :param parent: Parent component (optional).
+        :param parent: Parent object (optional).
         :type parent: Component
         """
         super().__init__(name, parent)
@@ -31,7 +30,7 @@ class SequenceItem(Transaction):
         self._parent_sequence_ = None
         self._parent_sequencer_ = None
 
-        if isinstance(parent, SequenceItem):
+        if isinstance(parent, Sequence):
             self._parent_sequence_ = parent
             self._parent_sequencer_ = parent.get_sequencer()
         elif isinstance(parent, Sequencer):
@@ -46,7 +45,7 @@ class SequenceItem(Transaction):
         """
         self._parent_sequencer_ = sequencer
 
-    def get_sequencer(self) -> Sequencer:
+    def get_sequencer(self) -> Sequencer|None:
         """
         Gets the sequencer of the item.
 
@@ -64,7 +63,7 @@ class SequenceItem(Transaction):
         """
         self._parent_sequence_ = sequence
 
-    def get_parent_sequence(self) -> Sequence:
+    def get_parent_sequence(self) -> Sequence|None:
         """
         Gets the parent sequence of the item.
 
@@ -73,7 +72,7 @@ class SequenceItem(Transaction):
         """
         return self._parent_sequence_
 
-    def get_root_sequece(self) -> Sequence:
+    def get_root_sequence(self) -> Sequence|None:
         """
         Gets the root sequence of the item.
 
@@ -82,7 +81,7 @@ class SequenceItem(Transaction):
         """
         retVal = self._parent_sequence_
         while retVal is not None:
-            if retVal.parent_sequence is not None:
+            if retVal._parent_sequence_ is not None:
                 retVal = self._parent_sequence_
         return retVal
 
