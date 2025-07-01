@@ -32,11 +32,12 @@ class VanillaSequencer(avl.Sequencer):
 
 
 class VanillaSequence(avl.Sequence):
-    def __init__(self, name: str, parent: avl.Component) -> None:
+    def __init__(self, name: str, parent: avl.Sequence|avl.Sequencer) -> None:
         super().__init__(name, parent)
         self.n_items = avl.Factory.get_variable(f"{self.get_full_name()}.n_items", 1)
 
     async def body(self):
+        assert self._parent_sequencer_ is not None
         self._parent_sequencer_.raise_objection()
         for _ in range(self.n_items):
             item = avl.SequenceItem("item", self)
@@ -164,14 +165,14 @@ class VanillaEnv(avl.Env):
 
         if self.srst is not None:
             await cocotb.start(
-                self.sync_reset(self.srst, self.cfg.sreset_cycles, active_high=self.cfg.sreset_high)
+                self.sync_reset(self.clk, self.srst, self.cfg.sreset_cycles, active_high=self.cfg.sreset_high)
             )
 
         if self.cfg.timeout_ns is not None:
             await cocotb.start(self.timeout(self.cfg.timeout_ns))
 
         if self.cfg.ticker_ns is not None:
-            await cocotb.start(self.ticker(self.cfd.ticker_ns, "Tempus Fugit"))
+            await cocotb.start(self.ticker(self.cfg.ticker_ns, "Tempus Fugit"))
 
 
 __all__ = [

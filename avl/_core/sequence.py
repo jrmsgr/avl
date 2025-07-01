@@ -13,16 +13,16 @@ if TYPE_CHECKING:
     from .sequencer import Sequencer
 
 class Sequence(SequenceItem):
-    def __init__(self, name, parent_sequence: Sequence) -> None:
+    def __init__(self, name, parent: Sequence|Sequencer) -> None:
         """
-        Initializes the Sequence with a name and parent sequence.
+        Initializes the Sequence with a name and parent.
 
         :param name: Name of the sequence.
         :type name: str
         :param parent_sequence: Parent sequence, if any.
         :type parent_sequence: Sequence
         """
-        super().__init__(name, parent_sequence)
+        super().__init__(name, parent)
         self.priority = 100
         self._idx_ = 0
 
