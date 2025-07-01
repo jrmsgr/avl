@@ -8,7 +8,7 @@ from __future__ import annotations
 import copy
 import random
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Any, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, Self
 
 import tabulate
 from z3 import BitVecNumRef, BoolRef, IntNumRef, Optimize, RatNumRef, sat
@@ -17,10 +17,7 @@ from .factory import Factory
 from .log import Log
 from .var import Var
 
-if TYPE_CHECKING:
-    from .component import Component
-
-def _var_finder_(obj: Any, memo: dict[int, Any], conversion: dict[Any, Any] = None, do_copy : bool=False, do_deepcopy : bool=False) -> Any:
+def _var_finder_(obj: Any, memo: dict[int, Any], conversion: Optional[dict[Any, Any]] = None, do_copy : bool=False, do_deepcopy : bool=False) -> Any:
     """
     Recursively find and copy Var objects in the given object.
     This function handles lists, tuples, sets, and dictionaries, and can optionally perform deep copies.
@@ -109,8 +106,6 @@ def _patch_constraints_(obj : Object, new_obj : Object, conversion: dict[Any, in
             new_v = [conversion[id(o)] for o in v[1]]
             new_obj._constraints_[truth_value][k] = (v[0], new_v)
 
-Obj = TypeVar("Obj", bound="Object")
-
 class Object:
 
     def __copy__(self) -> Object:
@@ -149,7 +144,7 @@ class Object:
 
         return new_obj
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> Obj: # pyright: ignore [reportInvalidTypeVarUse]
+    def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         """
         Create a new instance of Object or its subclass.
 
@@ -160,11 +155,13 @@ class Object:
         :return: New instance of Object or its subclass.
         :rtype: object
         """
-        # If no arguments are provided, create a default instance
-        if not args and not kwargs:
-            return super().__new__(cls)
 
         obj = super().__new__(cls)
+
+        # If no arguments are provided, create a default instance
+        if not args and not kwargs:
+            return obj
+
         name = args[0]
         parent = args[1]
         path = name
@@ -183,7 +180,7 @@ class Object:
 
         return obj
 
-    def __init__(self, name: str, parent: Optional[Component]) -> None:
+    def __init__(self, name: str, parent: Optional[Object]= None) -> None:
         """
         Initialize Object.
 
@@ -293,7 +290,7 @@ class Object:
 
     def get_full_name(self) -> str:
         """
-        Get the full hierarchical name of the component.
+        Get the full hierarchical name of the object.
 
         :return: Full name of the component.
         :rtype: str
@@ -303,21 +300,21 @@ class Object:
         else:
             return self.name
 
-    def set_parent(self, parent="Component") -> None:
+    def set_parent(self, parent: Object) -> None:
         """
-        Set the parent of the component.
+        Set the parent of the object.
 
-        :param parent: Parent component.
-        :type parent: Component
+        :param parent: Parent object.
+        :type parent: Object
         """
         self._parent_ = parent
 
-    def get_parent(self) -> Component:
+    def get_parent(self) -> Object|None:
         """
-        Get the parent of the component.
+        Get the parent of the object.
 
-        :return: Parent component.
-        :rtype: Component
+        :return: Parent object.
+        :rtype: Object
         """
         return self._parent_
 
@@ -472,7 +469,7 @@ class Object:
         """
         pass
 
-    def randomize(self, hard: list[BoolRef] = None, soft: list[BoolRef] = None) -> None:
+    def randomize(self, hard: Optional[list[BoolRef]] = None, soft: Optional[list[BoolRef]] = None) -> None:
         """
         This method randomizes the value of the variable by considering hard and soft constraints.
         It uses an optimization solver to find a suitable value that satisfies the constraints.
@@ -499,7 +496,7 @@ class Object:
         def new_solver(constraints : dict[bool, dict], vars : list [Var], var_ids : list[int]) -> Optimize:
             solver = Optimize()
 
-            for truth_value, add_fn in [(True, solver.add), (False, lambda expr: solver.add_soft(expr, weight=100))]:
+            for truth_value, add_fn in [(True, solver.add), (False, lambda expr: solver.add_soft(expr, weight=100))]: # pyright: ignore [reportArgumentType]
                 for fn, args in constraints[truth_value].values():
                     _args = [resolve_arg(a, var_ids) for a in args]
                     add_fn(fn(*_args))
@@ -578,16 +575,16 @@ class Object:
             for c in soft:
                 fn, *args = c
                 _args = [resolve_arg(a, var_ids) for a in args]
-                solver.add_soft(fn(*_args), weight=1000)
+                solver.add_soft(fn(*_args), weight=1000) # pyright: ignore [reportArgumentType]
 
         # Add randomization and solve
         for k,v in min_values.items():
             var = Var._lookup_[k]
             val = var._random_value_(bounds=(v, max_values[k]))
-            solver.add_soft(var._rand_ == val, weight=100)
+            solver.add_soft(var._rand_ == val, weight=100) # pyright: ignore [reportArgumentType]
 
             if random.choice([True, False]):
-                solver.add_soft(var._rand_ != var.value, weight=100)
+                solver.add_soft(var._rand_ != var.value, weight=100) # pyright: ignore [reportArgumentType]
 
         values = cast(solver)
         solver.pop()
