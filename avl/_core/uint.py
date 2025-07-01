@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from z3 import And, Int
+from z3 import And, ArithRef, Int
 
 from .logic import Logic
 
@@ -19,7 +19,7 @@ class Uint(Logic):
         name: str,
         value: int,
         auto_random: bool = True,
-        fmt: Callable[..., int] = str,
+        fmt: Callable[..., str] = str,
         width: int = 32
     ) -> None:
         """
@@ -39,7 +39,7 @@ class Uint(Logic):
         """
         super().__init__(name, value, auto_random=auto_random, fmt=fmt, width=width)
 
-    def _z3_(self) -> Int:
+    def _z3_(self) -> ArithRef:
         """
         Get the Z3 representation of the variable.
         Add a range constraint to ensure the value is within the specified limits.
@@ -57,7 +57,7 @@ class Uint(Logic):
 
 class Uint8(Uint):
     def __init__(
-        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., int] = str
+        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., str] = str
     ) -> None:
         """
         Initialize an instance of the class.
@@ -86,7 +86,7 @@ class Uint8(Uint):
 
 class Uint16(Uint):
     def __init__(
-        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., int] = str
+        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., str] = str
     ) -> None:
         """
         Initialize an instance of the class.
@@ -115,7 +115,7 @@ class Uint16(Uint):
 
 class Uint32(Logic):
     def __init__(
-        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., int] = str
+        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., str] = str
     ) -> None:
         """
         Initialize an instance of the class.
@@ -144,7 +144,7 @@ class Uint32(Logic):
 
 class Uint64(Uint):
     def __init__(
-        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., int] = str
+        self, name: str, value: int, auto_random: bool = True, fmt: Callable[..., str] = str
     ) -> None:
         """
         Initialize an instance of the class.
