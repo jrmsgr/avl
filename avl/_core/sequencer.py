@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from cocotb.triggers import Event
 
@@ -105,7 +105,7 @@ class Sequencer(Component):
         """
         return self.current_lock
 
-    async def wait_for_grant(self, seq: Sequence, priority: int = None) -> None:
+    async def wait_for_grant(self, seq: Sequence, priority: Optional[int] = None) -> None:
         """
         Waits for a grant to run the sequence.
 
