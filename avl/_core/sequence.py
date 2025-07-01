@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .sequence_item import SequenceItem
 
@@ -45,7 +45,7 @@ class Sequence(SequenceItem):
         return self.priority
 
     async def start_item(
-        self, item: SequenceItem, priority: int = None, sequencer: Sequencer = None
+        self, item: SequenceItem, priority: Optional[int] = None, sequencer: Optional[Sequencer] = None
     ) -> None:
         """
         Starts an item in the sequence.
@@ -64,6 +64,8 @@ class Sequence(SequenceItem):
             _sqr = sequencer
         else:
             _sqr = self.get_sequencer()
+
+        assert _sqr is not None, "No sequencer has been set"
 
         item.set_sequencer(_sqr)
 
