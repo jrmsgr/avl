@@ -86,7 +86,7 @@ class Sequence(SequenceItem):
         if _sqr is None:
             raise Exception("Sequence item has no sequencer")
 
-        _sqr.send_request(self, item)
+        _sqr.send_request(item)
 
         await item.wait_on_event("done")
 
@@ -135,7 +135,6 @@ class Sequence(SequenceItem):
     def pre_do(self, item: SequenceItem) -> None:
         """
         Pre-do hook for an item.
-
         :param item: The item to be processed.
         """
         pass
