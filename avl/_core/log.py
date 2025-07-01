@@ -123,11 +123,6 @@ class Log:
         The log data is converted to a pandas DataFrame before writing.
         """
 
-        def split_multiline(cell):
-            if isinstance(cell, str) and "\n" in cell:
-                return "\n".join(cell.splitlines())
-            return cell
-
         if Log._logfile is not None:
             fileext = os.path.splitext(Log._logfile)[1]
             d = pd.DataFrame(Log._logdata)
@@ -147,11 +142,11 @@ class Log:
             elif fileext == ".txt":
                 with open(Log._logfile, mode) as f:
                     f.write(
-                        tabulate.tabulate(d.values.tolist(), headers=d.columns, tablefmt="grid")
+                        tabulate.tabulate(d.values.tolist(), headers=d.columns, tablefmt="grid") # pyright: ignore [reportArgumentType]
                     )
             elif fileext == ".md":
                 with open(Log._logfile, mode) as f:
-                    f.write(d.to_markdown(index=False))
+                    f.write(d.to_markdown(index=False)) # pyright: ignore [reportArgumentType]
             elif fileext == ".rst":
                 with open(Log._logfile, mode) as f:
                     f.write(tabulate.tabulate(d, headers="keys", tablefmt="rst", showindex=False))

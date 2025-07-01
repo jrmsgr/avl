@@ -39,13 +39,13 @@ class Uint(Logic):
         """
         super().__init__(name, value, auto_random=auto_random, fmt=fmt, width=width)
 
-    def _z3_(self) -> ArithRef:
+    def _z3_(self) -> ArithRef: # pyright: ignore [reportIncompatibleMethodOverride]
         """
         Get the Z3 representation of the variable.
         Add a range constraint to ensure the value is within the specified limits.
 
         :return: The Z3 BitVec representation of the variable.
-        :rtype: z3.BitVecRef
+        :rtype: z3.ArithRef
         """
         (_min_, _max_) = self._range_()
         self.add_constraint(
