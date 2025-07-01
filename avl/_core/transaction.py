@@ -6,18 +6,15 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import Any, Optional
 
 from cocotb.triggers import Event
 from cocotb.utils import get_sim_time
 
 from .object import Object
 
-if TYPE_CHECKING:
-    from .component import Component
-
 class Transaction(Object):
-    def __init__(self, name: str, parent: Component) -> None:
+    def __init__(self, name: str, parent: Optional[Object] = None) -> None:
         """
         Initialize a new Transaction.
 
@@ -46,7 +43,7 @@ class Transaction(Object):
         """
         return self._id_
 
-    def add_event(self, name: str, callback: Callable[..., Any] = None) -> None:
+    def add_event(self, name: str, callback: Optional[Callable[..., Any]] = None) -> None:
         """
         Add an event to the transaction.
 
@@ -75,7 +72,7 @@ class Transaction(Object):
         else:
             return None
 
-    def set_event(self, name: str, *args: list[Any], **kwargs: list[Any]) -> None:
+    def set_event(self, name: str, *args: list[Any], **kwargs: dict[str, Any]) -> None:
         """
         Set an event and trigger its callbacks.
 
@@ -85,7 +82,7 @@ class Transaction(Object):
         :param kwargs: Additional keyword arguments for the callback.
         """
         if "units" in kwargs:
-            self._events_[name][0] = get_sim_time(units=kwargs["units"])
+            self._events_[name][0] = get_sim_time(units=kwargs["units"]) # pyright: ignore [reportArgumentType]
         else:
             self._events_[name][0] = get_sim_time(units="ns")
 
