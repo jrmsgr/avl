@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 from anytree import AnyNode, RenderTree
 from graphviz import Digraph
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .component import Component
 
 class Visualization:
-    _nodes = {None: AnyNode(id="root")}
+    _nodes: dict[None|Component, AnyNode] = {None: AnyNode(id="root")}
 
     @staticmethod
     def add_component(component: Component) -> None:
@@ -39,7 +39,7 @@ class Visualization:
         )
 
     @staticmethod
-    def get_node(component: Component) -> AnyNode:
+    def get_node(component: Component|None) -> AnyNode:
         """
         Retrieve the node associated with the given component from the AVL visualization.
 
@@ -52,7 +52,7 @@ class Visualization:
         return Visualization._nodes[component]
 
     @staticmethod
-    def tree(component: Component = None) -> str:
+    def tree(component: Optional[Component] = None) -> str:
         """
         Returns a string representation of the AVL visualization tree.
         This method traverses the AVL visualization tree and constructs a string
@@ -69,7 +69,7 @@ class Visualization:
         return retval
 
     @staticmethod
-    def diagram(component: Component = None) -> None:
+    def diagram(component: Optional[Component] = None) -> None:
         """
         Generates a diagram of the AVL visualization tree using Graphviz.
         This method creates a directed graph representation of the AVL visualization tree,
