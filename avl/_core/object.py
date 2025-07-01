@@ -8,7 +8,7 @@ from __future__ import annotations
 import copy
 import random
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Any, Optional, Self
+from typing import Any, Optional, Self, Callable
 
 import tabulate
 from z3 import BitVecNumRef, BoolRef, IntNumRef, Optimize, RatNumRef, sat
@@ -44,7 +44,8 @@ def _var_finder_(obj: Any, memo: dict[int, Any], conversion: Optional[dict[Any, 
             new_obj = copy.copy(obj)
         else:
             new_obj = obj
-        conversion[obj_id] = new_obj
+        if conversion is not None:
+            conversion[obj_id] = new_obj
         memo[obj_id] = new_obj
         return new_obj
 
@@ -231,7 +232,7 @@ class Object:
             else:
                 _fmt_ = str
 
-            if isinstance(v, (set | list | tuple)):
+            if isinstance(v, (list | tuple)):
                 values.append([f"{k}:", ""])
                 for i in range(len(v)):
                     values.append([f"[{i}]", _fmt_(v[i])])
@@ -270,7 +271,7 @@ class Object:
         Log.fatal(msg, group)
 
 
-    def set_name(self, name: str) -> str:
+    def set_name(self, name: str):
         """
         Set the name of the object.
 
@@ -318,7 +319,7 @@ class Object:
         """
         return self._parent_
 
-    def set_field_attributes(self, name: str, fmt: str = str, compare: bool = True) -> None:
+    def set_field_attributes(self, name: str, fmt: Callable[..., Any] = str, compare: bool = True) -> None:
         """
         Set attributes for a field.
 
@@ -409,7 +410,7 @@ class Object:
         return retVal
 
     def add_constraint(
-        self, name: str, constraint: BoolRef, *args: Any, hard: bool = True, target: dict = None
+        self, name: str, constraint: BoolRef, *args: Any, hard: bool = True, target: Optional[dict] = None
     ) -> None:
         """
         Add a constraint to the object.
